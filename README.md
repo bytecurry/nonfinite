@@ -3,7 +3,10 @@ Support of infinity and nan values in a standard, implementation independent way
 
 Basically this defines constants for +/- infinity and nan as keywords and some helper functions.
 
-I chose not to use IEEE special values on implementations that support it because it was inconsistent.
+I chose not to use IEEE special values on implementations that support it because it was
+inconsistent. However, on implementations that support IEEE special values, the predicate
+functions should correctly handle those values. For example on SBCL
+`(infinity-p sb-ext:long-float-positive-infinity)` returns true.
 
 This is mostly useful for dealing with NaN or infinite values received or sent over an
 external protocol.
@@ -34,7 +37,7 @@ A type containing all reals and the special values stored in +SPECIAL-FLOATS+.
 ## Functions
 
 ### NAN-P number
-A function that tests if a number is EQL to +NAN+.
+A function that tests if a number is NaN.
 
 ### INFINITY-P number
 Test if a number is positive or negative infinity.
