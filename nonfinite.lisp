@@ -2,37 +2,48 @@
 
 (defpackage bytecurry.nonfinite
   (:nicknames :nonfinite :ieee-special)
+  (:use :cl)
+  (:import-from :alexandria #:define-constant)
   (:export #:+nan+
            #:+infinity+
            #:+negative-infinity+
            #:nan-p
-           #:infinite-p
-           #:normal-number-p))
+           #:infinity-p
+           #:normal-number-p
+           #:expanded-float
+           #:expanded-real))
 
-(deftype expanded-float () `(or float (member ,+nan+ ,+infinity+ ,+negative-infinity+)))
+(in-package :bytecurry.nonfinite)
+
+(define-constant +nan+ :nan
+  :documentation "Not a number")
+(define-constant +infinity+ :infinity
+  :documentation "Positive Infinity")
+(define-constant +negative-infinity+ :negative-infinity
+  :documentation "Negative Infinity")
+
+(define-constant +special-floats+ (list +nan+
+                                    +infinity+
+                                    +negative-infinity+)
+  :documentation "List of special float values: NaN, +Inf, -Inf")
+
+(deftype expanded-float () `(or float (member ,@+special-floats+)))
+(deftype expanded-real () `(or real (member ,@+special-floats+)))
 
 
-(defconstant +nan+ :nan)
-(defconstant +infinity+ :infinity)
-(defconstant +negative-infinity+ :negative-infinity)
 
 (defun nan-p (number)
-  (declare (type expanded-float number))
+  (declare (type expanded-real number))
   "Test if number is NaN"
-  #+sbcl
-  (or (eql number +nan+) (sb-ext:float-nan-p number))
-  #-sbcl
-  (eql num +nan+))
+  (eql number +nan+))
 
-(defun infinite-p (number)
-  (declare (type expanded-float number))
+(defun infinity-p (number)
+  (declare (type expanded-real number))
   "Test if number is infinite (positive or negative)"
   (or (eql number +infinity+)
-      (eql number +negative-infinity+)
-      #+sbcl
-      (sb-ext:float-infinity-p number)))
+      (eql number +negative-infinity+)))
 
 (defun normal-number-p (number)
-  (declare (type expanded-float number))
+  (declare (type expanded-real number))
   "Test if NUMBER is a normal number. I.e. neither NaN or an infinity"
-  (not (or (nan-p number) (infinite-p (number)))))
+  (not (or (nan-p number) (infinity-p number))))
